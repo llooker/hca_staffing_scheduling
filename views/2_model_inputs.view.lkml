@@ -46,58 +46,64 @@ view: volume_by_facility_by_shift_by_day {
     type: number
   }
 
-  dimension: volume_6_week_ago_same_day_of_week { type: number }
-  dimension: volume_7_week_ago_same_day_of_week { type: number }
-  dimension: volume_8_week_ago_same_day_of_week { type: number }
-  dimension: volume_9_week_ago_same_day_of_week { type: number }
-  dimension: volume_52_week_ago_same_day_of_week { type: number }
-  dimension: volume_53_week_ago_same_day_of_week { type: number }
-  dimension: volume_104_week_ago_same_day_of_week { type: number }
-  dimension: volume_105_week_ago_same_day_of_week { type: number }
-  dimension: avg_volume_6_weeks_ago { type: number }
-  dimension: avg_volume_7_weeks_ago { type: number }
-  dimension: avg_volume_8_weeks_ago { type: number }
-  dimension: avg_volume_9_weeks_ago { type: number }
-  dimension: avg_volume_52_weeks_ago { type: number }
-  dimension: avg_volume_53_weeks_ago { type: number }
-  dimension: avg_volume_104_weeks_ago { type: number }
-  dimension: avg_volume_105_weeks_ago { type: number }
+  dimension: volume_6_week_ago_same_day_of_week { group_label: "Z - Input Parameters" type: number }
+  dimension: volume_7_week_ago_same_day_of_week { group_label: "Z - Input Parameters" type: number }
+  dimension: volume_8_week_ago_same_day_of_week { group_label: "Z - Input Parameters" type: number }
+  dimension: volume_9_week_ago_same_day_of_week { group_label: "Z - Input Parameters" type: number }
+  dimension: volume_52_week_ago_same_day_of_week { group_label: "Z - Input Parameters" type: number }
+  dimension: volume_53_week_ago_same_day_of_week { group_label: "Z - Input Parameters" type: number }
+  dimension: volume_104_week_ago_same_day_of_week { group_label: "Z - Input Parameters" type: number }
+  dimension: volume_105_week_ago_same_day_of_week { group_label: "Z - Input Parameters" type: number }
+  dimension: avg_volume_6_weeks_ago { group_label: "Z - Input Parameters" type: number }
+  dimension: avg_volume_7_weeks_ago { group_label: "Z - Input Parameters" type: number }
+  dimension: avg_volume_8_weeks_ago { group_label: "Z - Input Parameters" type: number }
+  dimension: avg_volume_9_weeks_ago { group_label: "Z - Input Parameters" type: number }
+  dimension: avg_volume_52_weeks_ago { group_label: "Z - Input Parameters" type: number }
+  dimension: avg_volume_53_weeks_ago { group_label: "Z - Input Parameters" type: number }
+  dimension: avg_volume_104_weeks_ago { group_label: "Z - Input Parameters" type: number }
+  dimension: avg_volume_105_weeks_ago { group_label: "Z - Input Parameters" type: number }
 
 ######################
 ### Derived Dimensions
 ######################
 
   dimension: percent_change_volume_6_9_weeks {
+    group_label: "Z - Input Parameters"
     type: number
     sql: (${volume_6_week_ago_same_day_of_week} - ${volume_9_week_ago_same_day_of_week}) / nullif(${volume_9_week_ago_same_day_of_week},0) ;;
     value_format_name: percent_1
   }
 
   dimension: percent_change_volume_8_9_weeks {
+    group_label: "Z - Input Parameters"
     type: number
     sql: (${volume_8_week_ago_same_day_of_week} - ${volume_9_week_ago_same_day_of_week}) / nullif(${volume_9_week_ago_same_day_of_week},0) ;;
     value_format_name: percent_1
   }
 
   dimension: percent_change_volume_52_9_weeks {
+    group_label: "Z - Input Parameters"
     type: number
     sql: (${volume_9_week_ago_same_day_of_week} - ${volume_52_week_ago_same_day_of_week}) / nullif(${volume_52_week_ago_same_day_of_week},0) ;;
     value_format_name: percent_1
   }
 
   dimension: percent_change_volume_104_52_weeks {
+    group_label: "Z - Input Parameters"
     type: number
     sql: (${volume_52_week_ago_same_day_of_week} - ${volume_104_week_ago_same_day_of_week}) / nullif(${volume_104_week_ago_same_day_of_week},0) ;;
     value_format_name: percent_1
   }
 
   dimension: percent_change_volume_53_52_weeks {
+    group_label: "Z - Input Parameters"
     type: number
     sql: (${volume_52_week_ago_same_day_of_week} - ${volume_53_week_ago_same_day_of_week}) / nullif(${volume_53_week_ago_same_day_of_week},0) ;;
     value_format_name: percent_1
   }
 
   dimension: percent_change_volume_105_104_weeks {
+    group_label: "Z - Input Parameters"
     type: number
     sql: (${volume_104_week_ago_same_day_of_week} - ${volume_105_week_ago_same_day_of_week}) / nullif(${volume_105_week_ago_same_day_of_week},0) ;;
     value_format_name: percent_1
@@ -110,5 +116,92 @@ view: volume_by_facility_by_shift_by_day {
   measure: total_volume {
     type: sum
     sql: ${volume} ;;
+  }
+}
+
+view: median_calc_pre {
+  derived_table: {
+    datagroup_trigger: new_data
+    explore_source: volume_by_facility_by_shift_by_day {
+      column: pk {}
+      column: volume_6_week_ago_same_day_of_week {}
+      column: volume_7_week_ago_same_day_of_week {}
+      column: volume_8_week_ago_same_day_of_week {}
+      column: volume_9_week_ago_same_day_of_week {}
+    }
+  }
+  dimension: pk {}
+  dimension: volume_6_week_ago_same_day_of_week { type: number }
+  dimension: volume_7_week_ago_same_day_of_week { type: number }
+  dimension: volume_8_week_ago_same_day_of_week { type: number }
+  dimension: volume_9_week_ago_same_day_of_week { type: number }
+
+
+}
+
+view: median_calc {
+  derived_table: {
+    datagroup_trigger: new_data
+    sql:
+              SELECT pk, volume_6_week_ago_same_day_of_week as value FROM ${median_calc_pre.SQL_TABLE_NAME}
+    UNION ALL SELECT pk, volume_7_week_ago_same_day_of_week as value FROM ${median_calc_pre.SQL_TABLE_NAME}
+    UNION ALL SELECT pk, volume_8_week_ago_same_day_of_week as value FROM ${median_calc_pre.SQL_TABLE_NAME}
+    UNION ALL SELECT pk, volume_9_week_ago_same_day_of_week as value FROM ${median_calc_pre.SQL_TABLE_NAME}
+    ;;
+  }
+
+  dimension: pk {
+    primary_key: yes
+  }
+  dimension: value {
+    type: number
+  }
+  measure: median_value {
+    type: median
+    sql: ${value} ;;
+  }
+}
+
+view: summary_predictions {
+  derived_table: {
+    datagroup_trigger: new_data
+    explore_source: volume_by_facility_by_shift_by_day {
+      column: pk { field: volume_prediction.pk }
+      column: actual_value { field: volume_by_facility_by_shift_by_day.total_volume }
+      column: prediction_median { field: median_calc.median_value }
+      column: prediction_bqml { field: volume_prediction.average_predicted_volume }
+      filters: {
+        field: volume_prediction.pk
+        value: "-EMPTY"
+      }
+    }
+  }
+  dimension: pk {
+    primary_key: yes
+  }
+  dimension: actual_value {
+    type: number
+  }
+  dimension: prediction_median {
+    type: number
+  }
+  dimension: prediction_bqml {
+    value_format: "#,##0.0"
+    type: number
+  }
+  measure: average_actual_value {
+    type: average
+    sql: ${actual_value} ;;
+    value_format_name: decimal_1
+  }
+  measure: average_prediction_median {
+    type: average
+    sql: ${prediction_median} ;;
+    value_format_name: decimal_1
+  }
+  measure: average_prediction_bqml {
+    type: average
+    sql: ${prediction_bqml} ;;
+    value_format_name: decimal_1
   }
 }

@@ -18,7 +18,23 @@ explore: staffing_volume_predictions_1_load_raw_data {
 
 ### 2. Model Inputs
 
-explore: volume_by_facility_by_shift_by_day {}
+explore: volume_by_facility_by_shift_by_day {
+
+  join: median_calc {
+    relationship: one_to_one
+    sql_on: ${volume_by_facility_by_shift_by_day.pk} = ${median_calc.pk} ;;
+  }
+
+  join: volume_prediction {
+    relationship: one_to_one
+    sql_on: ${volume_by_facility_by_shift_by_day.pk} = ${volume_prediction.pk} ;;
+  }
+
+  join: summary_predictions {
+    relationship: one_to_one
+    sql_on: ${volume_by_facility_by_shift_by_day.pk} = ${summary_predictions.pk} ;;
+  }
+}
 
 ### 3. BQML
 

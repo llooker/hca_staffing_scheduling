@@ -215,6 +215,7 @@ view: volume_prediction {
           MODEL ${volume_model.SQL_TABLE_NAME},
           (SELECT * FROM ${future_input.SQL_TABLE_NAME}));;
   }
+
   dimension: pk {
     primary_key: yes
     sql: ${facility_id} || ' | ' || ${operation_date} || ' | ' || ${shift} ;;
@@ -259,7 +260,7 @@ view: volume_prediction {
   measure: average_predicted_volume {
     type: average
     sql: ${predicted_volume} ;;
-    value_format_name: percent_1
+    value_format_name: decimal_1
   }
 
   measure: average_residual_absolute {
