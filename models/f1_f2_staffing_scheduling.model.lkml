@@ -22,8 +22,18 @@ explore: volume_by_facility_by_shift_by_day {}
 
 ### 3. BQML
 
-explore: volume_model_evaluation {}
-explore: volume_model_training_info {}
+explore: volume_model_training_info {
+  label: "BQML - 1 - Training Info"
+}
+explore: volume_model_evaluation {
+  label: "BQML - 2 - Evaluation"
+}
+explore: volume_model_ml_weights {
+  label: "BQML - 3 - ML Weights"
+}
+explore: volume_prediction {
+  label: "BQML - 4 - Predictions"
+}
 
 ############ Caching Logic ############
 
