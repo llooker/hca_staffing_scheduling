@@ -36,8 +36,18 @@ view: volume_by_facility_by_shift_by_day {
 
   dimension: facility_id {}
 
-  dimension: operation_date {
-    type: date
+  dimension_group: operation {
+    type: time
+    timeframes: [
+      raw,
+      date,
+      week,
+      month,
+      quarter,
+      year
+    ]
+    datatype: date
+    sql: cast(${TABLE}.operation_date as date) ;;
   }
 
   dimension: shift {}
@@ -143,22 +153,26 @@ view: median_calc {
   derived_table: {
     datagroup_trigger: new_data
     sql:
-              SELECT pk, volume_6_week_ago_same_day_of_week as value FROM ${median_calc_pre.SQL_TABLE_NAME}
-    UNION ALL SELECT pk, volume_7_week_ago_same_day_of_week as value FROM ${median_calc_pre.SQL_TABLE_NAME}
-    UNION ALL SELECT pk, volume_8_week_ago_same_day_of_week as value FROM ${median_calc_pre.SQL_TABLE_NAME}
-    UNION ALL SELECT pk, volume_9_week_ago_same_day_of_week as value FROM ${median_calc_pre.SQL_TABLE_NAME}
+    SELECT distinct pk, PERCENTILE_CONT(value, 0.5) OVER (PARTITION BY pk) as median
+    FROM
+    (
+                SELECT pk, volume_6_week_ago_same_day_of_week as value FROM ${median_calc_pre.SQL_TABLE_NAME}
+      UNION ALL SELECT pk, volume_7_week_ago_same_day_of_week as value FROM ${median_calc_pre.SQL_TABLE_NAME}
+      UNION ALL SELECT pk, volume_8_week_ago_same_day_of_week as value FROM ${median_calc_pre.SQL_TABLE_NAME}
+      UNION ALL SELECT pk, volume_9_week_ago_same_day_of_week as value FROM ${median_calc_pre.SQL_TABLE_NAME}
+    ) a
     ;;
   }
 
   dimension: pk {
     primary_key: yes
   }
-  dimension: value {
+  dimension: median {
     type: number
   }
-  measure: median_value {
-    type: median
-    sql: ${value} ;;
+  measure: average_median {
+    type: average
+    sql: ${median} ;;
   }
 }
 
@@ -166,9 +180,9 @@ view: summary_predictions {
   derived_table: {
     datagroup_trigger: new_data
     explore_source: volume_by_facility_by_shift_by_day {
-      column: pk { field: volume_prediction.pk }
+      column: pk { field: volume_by_facility_by_shift_by_day.pk }
       column: actual_value { field: volume_by_facility_by_shift_by_day.total_volume }
-      column: prediction_median { field: median_calc.median_value }
+      column: prediction_median { field: median_calc.average_median }
       column: prediction_bqml { field: volume_prediction.average_predicted_volume }
       filters: {
         field: volume_prediction.pk
@@ -203,5 +217,16 @@ view: summary_predictions {
     type: average
     sql: ${prediction_bqml} ;;
     value_format_name: decimal_1
+  }
+
+  measure: median_percent_accuracy {
+    type: number
+    sql: 1 - (abs(${average_prediction_median} - ${average_actual_value}) / ${average_actual_value}) ;;
+    value_format_name: percent_1
+  }
+  measure: bqml_percent_accuracy {
+    type: number
+    sql: 1 - (abs(${average_prediction_bqml} - ${average_actual_value}) / ${average_actual_value}) ;;
+    value_format_name: percent_1
   }
 }
