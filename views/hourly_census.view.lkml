@@ -1,7 +1,6 @@
-view: staffing_volume_predictions_1_load_raw_data {
+view: hourly_census {
   sql_table_name: `hca-cti-ds-hackathon.f1_f2_staffing_scheduling.hourly_census`
     ;;
-  #   sql_table_name: `staffing_scheduling.staffing_volume_predictions_1_load_raw_data`
 
   dimension: beds_in_service_cnt {
     type: number
@@ -26,7 +25,6 @@ view: staffing_volume_predictions_1_load_raw_data {
     convert_tz: no
     datatype: date
     sql: ${TABLE}.Census_Date ;;
-    # sql: ${TABLE}.operation_date
   }
 
   dimension_group: census_date_hour {
@@ -34,9 +32,6 @@ view: staffing_volume_predictions_1_load_raw_data {
     timeframes: [
       raw,
       time,
-      hour_of_day,
-      day_of_month,
-      month_num,
       date,
       week,
       month,
@@ -157,124 +152,8 @@ view: staffing_volume_predictions_1_load_raw_data {
     sql: ${TABLE}.Transfer_Out_Cnt ;;
   }
 
-######################
-### Derived Dimensions
-######################
-
-  dimension: shift {
-    type: string
-    sql:
-      case
-        when ${census_date_hour_hour_of_day} BETWEEN 6 and 14 then '1 - Morning'
-        when ${census_date_hour_hour_of_day} BETWEEN 14 and 22 then '2 - Evening'
-        else '3 - Graveyard'
-      end
-    ;;
-  }
-
-  dimension: prediction_group_number_pre {
-    type: string
-    sql: ${census_date_hour_day_of_month} / ${census_date_hour_month_num}
-    ;;
-  }
-
-  dimension: prediction_group_number {
-    type: string
-    sql: ${prediction_group_number_pre} - floor(${prediction_group_number_pre})
-      ;;
-  }
-
-  dimension: prediction_group {
-    type: string
-    sql:
-      case
-        when ${prediction_group_number} BETWEEN 0 and 0.2 then 'Train'
-        when ${prediction_group_number} BETWEEN 0.2 and 0.5 then 'Test'
-        else 'Predict'
-      end
-    ;;
-  }
-
-  dimension: coid_department {
-    type: string
-    sql: ${coid} || ' | ' || ${default_dept_num};;
-  }
-
-######################
-### Measures
-######################
-
-  measure: volume {
-    type: sum
-    sql: ${beginning_census_cnt} ;;
-  }
-
   measure: count {
     type: count
     drill_fields: [coid_name, division_name, market_name, group_name]
   }
 }
-
-
-# view: staffing_volume_predictions_1_load_raw_data {
-#   sql_table_name: `staffing_scheduling.staffing_volume_predictions_1_load_raw_data`
-#     ;;
-
-# ######################
-# ### Original Dimensions
-# ######################
-
-#   dimension: doctor_id {
-#     type: string
-#     sql: ${TABLE}.doctor_id ;;
-#   }
-
-#   dimension: facility_id {
-#     type: string
-#     sql: ${TABLE}.facility_id ;;
-#   }
-
-#   dimension: nurse_id {
-#     type: string
-#     sql: ${TABLE}.nurse_id ;;
-#   }
-
-#   dimension_group: operation {
-#     type: time
-#     timeframes: [
-#       raw,
-#       time,
-#       date,
-#       week,
-#       hour_of_day,
-#       month,
-#       quarter,
-#       year
-#     ]
-#     sql: ${TABLE}.operation_time ;;
-#   }
-
-# ######################
-# ### Derived Dimensions
-# ######################
-
-#   dimension: shift {
-#     type: string
-#     sql:
-#       case
-#         when ${operation_hour_of_day} BETWEEN 6 and 14 then '1 - Morning'
-#         when ${operation_hour_of_day} BETWEEN 14 and 22 then '2 - Evening'
-#         else '3 - Graveyard'
-#       end
-#     ;;
-#   }
-
-# ######################
-# ### Measures
-# ######################
-
-#   measure: volume {
-#     type: count
-#     drill_fields: []
-#   }
-# }

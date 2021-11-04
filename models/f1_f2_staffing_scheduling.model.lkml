@@ -1,4 +1,5 @@
-connection: "gcp_hca_poc"
+# connection: "gcp_hca_poc"
+connection: "hca_hack_poc"
 
 # include all the views
 include: "/views/**/*.view"
@@ -33,6 +34,20 @@ explore: volume_by_facility_by_shift_by_day {
   join: summary_predictions {
     relationship: one_to_one
     sql_on: ${volume_by_facility_by_shift_by_day.pk} = ${summary_predictions.pk} ;;
+  }
+
+  # join: staffing_volume_predictions_1_load_raw_data {
+  #   relationship: one_to_many
+  #   sql_on:
+  #         ${volume_by_facility_by_shift_by_day.coid_department} = ${staffing_volume_predictions_1_load_raw_data.coid_department}
+  #     AND ${volume_by_facility_by_shift_by_day.shift} = ${staffing_volume_predictions_1_load_raw_data.shift}
+  #     AND ${volume_by_facility_by_shift_by_day.census_date} = ${staffing_volume_predictions_1_load_raw_data.census_date}
+  #   ;;
+  # }
+
+  join: facility_master {
+    relationship: many_to_one
+    sql_on: ${volume_by_facility_by_shift_by_day.coid} = ${facility_master.coid};;
   }
 }
 

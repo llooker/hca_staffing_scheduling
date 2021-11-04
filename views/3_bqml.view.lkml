@@ -4,35 +4,35 @@ view: training_input {
   derived_table: {
     datagroup_trigger: new_data
     explore_source: volume_by_facility_by_shift_by_day {
-      column: facility_id {}
+      column: coid_department {}
       column: shift {}
-      column: operation_date {}
+      column: census_date {}
       column: volume {}
       column: volume_6_week_ago_same_day_of_week {}
       column: volume_7_week_ago_same_day_of_week {}
       column: volume_8_week_ago_same_day_of_week {}
       column: volume_9_week_ago_same_day_of_week {}
-      column: volume_52_week_ago_same_day_of_week {}
-      column: volume_53_week_ago_same_day_of_week {}
-      column: volume_104_week_ago_same_day_of_week {}
-      column: volume_105_week_ago_same_day_of_week {}
+      # column: volume_52_week_ago_same_day_of_week {}
+      # column: volume_53_week_ago_same_day_of_week {}
+      # column: volume_104_week_ago_same_day_of_week {}
+      # column: volume_105_week_ago_same_day_of_week {}
       column: avg_volume_6_weeks_ago {}
       column: avg_volume_7_weeks_ago {}
       column: avg_volume_8_weeks_ago {}
       column: avg_volume_9_weeks_ago {}
-      column: avg_volume_52_weeks_ago {}
-      column: avg_volume_53_weeks_ago {}
-      column: avg_volume_104_weeks_ago {}
-      column: avg_volume_105_weeks_ago {}
+      # column: avg_volume_52_weeks_ago {}
+      # column: avg_volume_53_weeks_ago {}
+      # column: avg_volume_104_weeks_ago {}
+      # column: avg_volume_105_weeks_ago {}
       column: percent_change_volume_6_9_weeks {}
       column: percent_change_volume_8_9_weeks {}
-      column: percent_change_volume_52_9_weeks {}
-      column: percent_change_volume_104_52_weeks {}
-      column: percent_change_volume_53_52_weeks {}
-      column: percent_change_volume_105_104_weeks {}
+      # column: percent_change_volume_52_9_weeks {}
+      # column: percent_change_volume_104_52_weeks {}
+      # column: percent_change_volume_53_52_weeks {}
+      # column: percent_change_volume_105_104_weeks {}
       filters: {
-        field: volume_by_facility_by_shift_by_day.operation_date
-        value: "2000/01/01 to 2003/01/01"
+        field: volume_by_facility_by_shift_by_day.prediction_group
+        value: "Train"
       }
     }
   }
@@ -42,35 +42,35 @@ view: testing_input {
   derived_table: {
     datagroup_trigger: new_data
     explore_source: volume_by_facility_by_shift_by_day {
-      column: facility_id {}
+      column: coid_department {}
       column: shift {}
-      column: operation_date {}
+      column: census_date {}
       column: volume {}
       column: volume_6_week_ago_same_day_of_week {}
       column: volume_7_week_ago_same_day_of_week {}
       column: volume_8_week_ago_same_day_of_week {}
       column: volume_9_week_ago_same_day_of_week {}
-      column: volume_52_week_ago_same_day_of_week {}
-      column: volume_53_week_ago_same_day_of_week {}
-      column: volume_104_week_ago_same_day_of_week {}
-      column: volume_105_week_ago_same_day_of_week {}
+      # column: volume_52_week_ago_same_day_of_week {}
+      # column: volume_53_week_ago_same_day_of_week {}
+      # column: volume_104_week_ago_same_day_of_week {}
+      # column: volume_105_week_ago_same_day_of_week {}
       column: avg_volume_6_weeks_ago {}
       column: avg_volume_7_weeks_ago {}
       column: avg_volume_8_weeks_ago {}
       column: avg_volume_9_weeks_ago {}
-      column: avg_volume_52_weeks_ago {}
-      column: avg_volume_53_weeks_ago {}
-      column: avg_volume_104_weeks_ago {}
-      column: avg_volume_105_weeks_ago {}
+      # column: avg_volume_52_weeks_ago {}
+      # column: avg_volume_53_weeks_ago {}
+      # column: avg_volume_104_weeks_ago {}
+      # column: avg_volume_105_weeks_ago {}
       column: percent_change_volume_6_9_weeks {}
       column: percent_change_volume_8_9_weeks {}
-      column: percent_change_volume_52_9_weeks {}
-      column: percent_change_volume_104_52_weeks {}
-      column: percent_change_volume_53_52_weeks {}
-      column: percent_change_volume_105_104_weeks {}
+      # column: percent_change_volume_52_9_weeks {}
+      # column: percent_change_volume_104_52_weeks {}
+      # column: percent_change_volume_53_52_weeks {}
+      # column: percent_change_volume_105_104_weeks {}
       filters: {
-        field: volume_by_facility_by_shift_by_day.operation_date
-        value: "2003/01/01 to 2005/01/01"
+        field: volume_by_facility_by_shift_by_day.prediction_group
+        value: "Test"
       }
     }
   }
@@ -80,35 +80,35 @@ view: future_input {
   derived_table: {
     datagroup_trigger: new_data
     explore_source: volume_by_facility_by_shift_by_day {
-      column: facility_id {}
+      column: coid_department {}
       column: shift {}
-      column: operation_date {}
+      column: census_date {}
       column: volume {}
       column: volume_6_week_ago_same_day_of_week {}
       column: volume_7_week_ago_same_day_of_week {}
       column: volume_8_week_ago_same_day_of_week {}
       column: volume_9_week_ago_same_day_of_week {}
-      column: volume_52_week_ago_same_day_of_week {}
-      column: volume_53_week_ago_same_day_of_week {}
-      column: volume_104_week_ago_same_day_of_week {}
-      column: volume_105_week_ago_same_day_of_week {}
+      # column: volume_52_week_ago_same_day_of_week {}
+      # column: volume_53_week_ago_same_day_of_week {}
+      # column: volume_104_week_ago_same_day_of_week {}
+      # column: volume_105_week_ago_same_day_of_week {}
       column: avg_volume_6_weeks_ago {}
       column: avg_volume_7_weeks_ago {}
       column: avg_volume_8_weeks_ago {}
       column: avg_volume_9_weeks_ago {}
-      column: avg_volume_52_weeks_ago {}
-      column: avg_volume_53_weeks_ago {}
-      column: avg_volume_104_weeks_ago {}
-      column: avg_volume_105_weeks_ago {}
+      # column: avg_volume_52_weeks_ago {}
+      # column: avg_volume_53_weeks_ago {}
+      # column: avg_volume_104_weeks_ago {}
+      # column: avg_volume_105_weeks_ago {}
       column: percent_change_volume_6_9_weeks {}
       column: percent_change_volume_8_9_weeks {}
-      column: percent_change_volume_52_9_weeks {}
-      column: percent_change_volume_104_52_weeks {}
-      column: percent_change_volume_53_52_weeks {}
-      column: percent_change_volume_105_104_weeks {}
+      # column: percent_change_volume_52_9_weeks {}
+      # column: percent_change_volume_104_52_weeks {}
+      # column: percent_change_volume_53_52_weeks {}
+      # column: percent_change_volume_105_104_weeks {}
       filters: {
-        field: volume_by_facility_by_shift_by_day.operation_date
-        value: "2005/01/01 to 2030/01/01"
+        field: volume_by_facility_by_shift_by_day.prediction_group
+        value: "Predict"
       }
     }
   }
@@ -128,7 +128,7 @@ view: volume_model {
         -- , auto_class_weights=true
         ) AS
       SELECT
-        * EXCEPT(facility_id, operation_date)
+        * EXCEPT(coid_department, census_date)
       FROM ${training_input.SQL_TABLE_NAME};;
   }
 }
@@ -176,12 +176,12 @@ view: volume_model_evaluation {
           (SELECT * FROM ${testing_input.SQL_TABLE_NAME}));;
   }
 
-  dimension: mean_absolute_error { type: number }
-  dimension: mean_squared_error { type: number }
-  dimension: mean_squared_log_error { type: number }
-  dimension: median_absolute_error { type: number }
-  dimension: r2_score { type: number }
-  dimension: explained_variance { type: number }
+  dimension: mean_absolute_error { type: number value_format_name: decimal_2 }
+  dimension: mean_squared_error { type: number value_format_name: decimal_2 }
+  dimension: mean_squared_log_error { type: number value_format_name: decimal_2 }
+  dimension: median_absolute_error { type: number value_format_name: decimal_2 }
+  dimension: r2_score { type: number value_format_name: decimal_2 }
+  dimension: explained_variance { type: number value_format_name: decimal_2 }
 }
 
 view: volume_model_ml_weights {
@@ -218,12 +218,12 @@ view: volume_prediction {
 
   dimension: pk {
     primary_key: yes
-    sql: ${facility_id} || ' | ' || ${operation_date} || ' | ' || ${shift} ;;
+    sql: ${coid_department} || ' | ' || ${census_date} || ' | ' || ${shift} ;;
   }
 
-  dimension: facility_id {}
+  dimension: coid_department {}
 
-  dimension: operation_date {
+  dimension: census_date {
     type: date
   }
 
