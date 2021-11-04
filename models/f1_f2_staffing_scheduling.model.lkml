@@ -3,6 +3,8 @@ connection: "hca_hack_poc"
 
 # include all the views
 include: "/views/**/*.view"
+include: "/bqml_model/**/*.view"
+include: "/registration_data/**/*.view"
 
 datagroup: f1_f2_staffing_scheduling_default_datagroup {
   # sql_trigger: SELECT MAX(id) FROM etl_log;;
@@ -64,6 +66,34 @@ explore: volume_model_ml_weights {
 }
 explore: volume_prediction {
   label: "BQML - 4 - Predictions"
+}
+
+#### Registration Data
+
+explore: registration_to_admission_hours {
+  hidden: yes
+}
+
+explore: hourly_census {
+  join: count_pre_registrations_by_date_yesterday {
+    from: count_pre_registrations_by_date
+    relationship: one_to_one
+    type: inner
+    sql_on:
+          ${hourly_census.coid} = ${count_pre_registrations_by_date_yesterday.coid}
+      AND ${hourly_census.census_date} = date_add(${count_pre_registrations_by_date_yesterday.pre_registration_date}, interval 1 day)
+    ;;
+  }
+
+  join: count_pre_registrations_by_date_today {
+    from: count_pre_registrations_by_date
+    relationship: one_to_one
+    type: inner
+    sql_on:
+          ${hourly_census.coid} = ${count_pre_registrations_by_date_today.coid}
+      AND ${hourly_census.census_date} = ${count_pre_registrations_by_date_today.pre_registration_date}
+    ;;
+  }
 }
 
 ############ Caching Logic ############
