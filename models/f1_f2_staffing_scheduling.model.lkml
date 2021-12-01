@@ -1,10 +1,11 @@
-# connection: "gcp_hca_poc"
-connection: "hca_hack_poc"
+connection: "gcp_hca_poc"
+# connection: "hca_hack_poc"
 
 # include all the views
 include: "/views/**/*.view"
 include: "/bqml_model/**/*.view"
 include: "/registration_data/**/*.view"
+include: "/optimizer/**/*.view"
 
 datagroup: f1_f2_staffing_scheduling_default_datagroup {
   # sql_trigger: SELECT MAX(id) FROM etl_log;;
@@ -95,6 +96,10 @@ explore: hourly_census {
     ;;
   }
 }
+
+##### Optimizer
+
+explore: optimizer {}
 
 ############ Caching Logic ############
 
