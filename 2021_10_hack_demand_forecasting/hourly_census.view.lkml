@@ -1,4 +1,4 @@
-include: "/bqml_model/**/*.view"
+include: "/2021_10_hack_demand_forecasting/**/*.view"
 
 view: hourly_census {
   extends: [staffing_volume_predictions_1_load_raw_data]

@@ -2,10 +2,10 @@ connection: "gcp_hca_poc"
 # connection: "hca_hack_poc"
 
 # include all the views
-include: "/views/**/*.view"
-include: "/bqml_model/**/*.view"
-include: "/registration_data/**/*.view"
-include: "/optimizer/**/*.view"
+# include: "/views/**/*.view"
+include: "/2021_10_hack_demand_forecasting/**/*.view"
+# include: "/registration_data/**/*.view"
+include: "/2021_12_optimizer/**/*.view"
 
 datagroup: f1_f2_staffing_scheduling_default_datagroup {
   # sql_trigger: SELECT MAX(id) FROM etl_log;;
