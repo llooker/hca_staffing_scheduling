@@ -4,7 +4,7 @@ connection: "gcp_hca_poc"
 # include all the views
 # include: "/views/**/*.view"
 include: "/2021_10_hack_demand_forecasting/**/*.view"
-# include: "/registration_data/**/*.view"
+include: "/2022_01_demand_forecasting/**/*.view"
 include: "/2021_12_optimizer/**/*.view"
 
 datagroup: f1_f2_staffing_scheduling_default_datagroup {
@@ -13,6 +13,20 @@ datagroup: f1_f2_staffing_scheduling_default_datagroup {
 }
 
 persist_with: f1_f2_staffing_scheduling_default_datagroup
+
+###############################
+### 2022-01 Demand. Forecasting
+###############################
+
+### Raw Data
+
+explore: hourly_census_2_hosp_pre {
+  hidden: yes
+}
+
+###############################
+### 2021-10 Hack - Demand Forecasting
+###############################
 
 ### 1. Raw Data
 
@@ -97,7 +111,9 @@ explore: hourly_census {
   }
 }
 
-##### Optimizer
+###############################
+### 2021-12 Optimizer
+###############################
 
 explore: optimizer {}
 
