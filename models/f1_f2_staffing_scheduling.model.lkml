@@ -19,15 +19,10 @@ persist_with: f1_f2_staffing_scheduling_default_datagroup
 ###############################
 
 explore: results {
-  join: results__model_outputs {
-    view_label: "Deceleration"
+  join: model_outputs {
     sql: LEFT JOIN UNNEST(${results.model_outputs}) as model_outputs ;;
     relationship: one_to_many
   }
-}
-
-explore: results_pre {
-  hidden: yes
 }
 
 ###############################
