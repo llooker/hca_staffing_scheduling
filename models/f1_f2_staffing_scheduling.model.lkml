@@ -18,20 +18,16 @@ persist_with: f1_f2_staffing_scheduling_default_datagroup
 ### 2022-01 Demand. Forecasting
 ###############################
 
-### Raw Data
-
-explore: hourly_census_2_hosp_pre {
-  hidden: yes
+explore: results {
+  join: results__model_outputs {
+    view_label: "Deceleration"
+    sql: LEFT JOIN UNNEST(${results.model_outputs}) as model_outputs ;;
+    relationship: one_to_many
+  }
 }
 
-explore: hourly_census_2_hosp {
-  join: v_24_hours_28_forecast_2021_12_26_results_90_CI {
-    relationship: many_to_one
-    sql_on:
-        ${hourly_census_2_hosp.model_key_a_24} = ${v_24_hours_28_forecast_2021_12_26_results_90_CI.key}
-    AND ${hourly_census_2_hosp.census_date} = ${v_24_hours_28_forecast_2021_12_26_results_90_CI.time_series_timestamp}
-    ;;
-  }
+explore: results_pre {
+  hidden: yes
 }
 
 ###############################
