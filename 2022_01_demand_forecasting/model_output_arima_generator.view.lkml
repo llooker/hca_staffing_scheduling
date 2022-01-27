@@ -41,6 +41,11 @@ view: results {
     sql: ${TABLE}.model_type ;;
   }
 
+  dimension: model_type_2 {
+    type: string
+    sql: case when lower(${model_type}) like '%arima%' then 'ARIMA' else 'Baseline' end ;;
+  }
+
   dimension_group: start {
     type: time
     timeframes: [
@@ -91,6 +96,7 @@ view: model_outputs {
 
   dimension_group: census {
     type: time
+    hidden: yes
     timeframes: [
       raw,
       date,
@@ -108,6 +114,9 @@ view: model_outputs {
     type: time
     timeframes: [
       raw,
+      hour,
+      hour_of_day,
+      day_of_week,
       date,
       week,
       month,
@@ -266,8 +275,6 @@ view: model_outputs {
         else '1 - Green'
       end
     ;;
-
-
   }
   dimension: score_number {
     type: number
@@ -287,6 +294,16 @@ view: model_outputs {
     tiers: [7,14,30,60,90,180]
     style: integer
   }
+  dimension: score_buckets_3 {
+    type: string
+    sql:
+      case
+        when ${difference_perc} > 0.5 or ${difference_perc} < -0.5 then 'C - Very Wrong'
+        when ${difference_perc} > 0.2 or ${difference_perc} < -0.2 then 'B - Wrong'
+        else 'A - Correct'
+      end
+    ;;
+  }
 
 #######################
 ### Measures
@@ -294,7 +311,7 @@ view: model_outputs {
 
 ## RMSE
   measure: average_squared {
-    hidden: yes
+    group_label: "Quant"
     type: average
     sql: ${difference_abs_squared} ;;
   }
@@ -303,6 +320,41 @@ view: model_outputs {
     label: "RMSE"
     type: number
     sql: pow(${average_squared},0.5) ;;
+    value_format_name: decimal_1
+  }
+
+  measure: average_actual {
+    group_label: "Quant"
+    type: average
+    sql: ${actual} ;;
+    value_format_name: decimal_1
+  }
+
+  measure: average_expected {
+    group_label: "Quant"
+    type: average
+    sql: ${expected} ;;
+    value_format_name: decimal_1
+  }
+
+  measure: average_diff_abs {
+    group_label: "Quant"
+    type: average
+    sql: ${difference_abs} ;;
+    value_format_name: decimal_1
+  }
+
+  measure: average_diff_perc {
+    group_label: "Quant"
+    type: average
+    sql: ${difference_perc} ;;
+    value_format_name: percent_1
+  }
+
+  measure: average_diff_abs_squared {
+    group_label: "Quant"
+    type: average
+    sql: ${difference_abs_squared} ;;
     value_format_name: decimal_1
   }
 
@@ -351,6 +403,9 @@ view: model_outputs {
     group_label: "# - Each Bucket"
     type: count
   }
+  measure: count {
+    type: count
+  }
   measure: percent_cat_5 {
     group_label: "% - Each Bucket"
     type: number
@@ -379,6 +434,39 @@ view: model_outputs {
     group_label: "% - Each Bucket"
     type: number
     sql: ${number_cat_1} / nullif(${number_total},0) ;;
+    value_format_name: percent_1
+  }
+  measure: number_cat_a {
+    group_label: "# - Each Bucket"
+    type: count
+    filters: [score_buckets_3: "A%"]
+  }
+  measure: number_cat_b {
+    group_label: "# - Each Bucket"
+    type: count
+    filters: [score_buckets_3: "B%"]
+  }
+  measure: number_cat_c {
+    group_label: "# - Each Bucket"
+    type: count
+    filters: [score_buckets_3: "C%"]
+  }
+  measure: percent_cat_a {
+    group_label: "% - Each Bucket"
+    type: number
+    sql: ${number_cat_a} / nullif(${number_total},0) ;;
+    value_format_name: percent_1
+  }
+  measure: percent_cat_b {
+    group_label: "% - Each Bucket"
+    type: number
+    sql: ${number_cat_b} / nullif(${number_total},0) ;;
+    value_format_name: percent_1
+  }
+  measure: percent_cat_c {
+    group_label: "% - Each Bucket"
+    type: number
+    sql: ${number_cat_c} / nullif(${number_total},0) ;;
     value_format_name: percent_1
   }
 }

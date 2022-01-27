@@ -23,6 +23,11 @@ explore: results {
     sql: LEFT JOIN UNNEST(${results.model_outputs}) as model_outputs ;;
     relationship: one_to_many
   }
+
+  sql_always_where:
+      ${days_prior_to_forecast} in (7,30,60)
+  AND (${hour_band} in (4,12,24) OR ${hour_band} is null)
+  ;;
 }
 
 ###############################
