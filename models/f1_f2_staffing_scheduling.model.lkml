@@ -30,6 +30,8 @@ explore: results {
   ;;
 }
 
+explore: hourly_census_2_hosp {}
+
 ###############################
 ### 2021-10 Hack - Demand Forecasting
 ###############################
