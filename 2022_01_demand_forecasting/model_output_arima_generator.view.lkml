@@ -3,6 +3,7 @@ view: results {
   (
                 SELECT * FROM `hca-data-sandbox.staffing_scheduling.demand_forecasting_5_summary_results`
       UNION ALL SELECT * FROM `hca-data-sandbox.staffing_scheduling.demand_forecasting_baseline_5_summary_results`
+      UNION ALL SELECT * FROM  `hca-data-sandbox.staffing_scheduling.demand_forecasting_markov_3_summary_results`
   )
   ;;
 
@@ -14,6 +15,11 @@ view: results {
     primary_key: yes
     type: string
     sql: ${model_type} || ' | ' || ${counter_id} ;;
+  }
+
+  dimension: model_description {
+    type: string
+    sql: ${model_type} || ' | ' || ${days_prior_to_forecast} || ' Days Out | ' || ${start_date} || ' Start | ' || coalesce(${hour_band},24) || ' Hour Band';;
   }
 
   dimension: counter_id {
@@ -43,7 +49,12 @@ view: results {
 
   dimension: model_type_2 {
     type: string
-    sql: case when lower(${model_type}) like '%arima%' then 'ARIMA' else 'Baseline' end ;;
+    sql:
+      case
+        when lower(${model_type}) like '%arima%' then 'ARIMA'
+        when lower(${model_type}) like '%mark%' then 'Markov'
+        else 'Baseline'
+      end ;;
   }
 
   dimension_group: start {
@@ -135,7 +146,7 @@ view: model_outputs {
   dimension: expected {
     group_label: "Quant"
     type: number
-    sql: ${TABLE}.expected ;;
+    sql: ceil(${TABLE}.expected,0) ;;
     value_format_name: decimal_1
   }
 
@@ -451,6 +462,11 @@ view: model_outputs {
     type: count
     filters: [score_buckets_3: "C%"]
   }
+  measure: number_cat_b_c {
+    group_label: "# - Each Bucket"
+    type: count
+    filters: [score_buckets_3: "B%, C%"]
+  }
   measure: percent_cat_a {
     group_label: "% - Each Bucket"
     type: number
@@ -467,6 +483,12 @@ view: model_outputs {
     group_label: "% - Each Bucket"
     type: number
     sql: ${number_cat_c} / nullif(${number_total},0) ;;
+    value_format_name: percent_1
+  }
+  measure: percent_cat_b_c {
+    group_label: "% - Each Bucket"
+    type: number
+    sql: ${number_cat_b_c} / nullif(${number_total},0) ;;
     value_format_name: percent_1
   }
 }

@@ -24,13 +24,22 @@ explore: results {
     relationship: one_to_many
   }
 
-  sql_always_where:
-      ${days_prior_to_forecast} in (7,30,60)
-  AND (${hour_band} in (4,12,24) OR ${hour_band} is null)
-  ;;
+  # sql_always_where:
+  #     ${days_prior_to_forecast} in (7,30,60)
+  # AND (${hour_band} in (4,12,24) OR ${hour_band} is null)
+  # ;;
 }
 
-explore: hourly_census_2_hosp {}
+explore: hourly_census_2_hosp {
+  join: demand_forecasting_webform_cleaned {
+    relationship: many_to_one
+    sql_on: ${hourly_census_2_hosp.census_date} = ${demand_forecasting_webform_cleaned.date_date} ;;
+  }
+}
+
+explore: patient_census_webform_combined {}
+
+explore: census_webform_results {}
 
 ###############################
 ### 2021-10 Hack - Demand Forecasting

@@ -21,6 +21,7 @@ view: hourly_census_2_hosp {
     UNION ALL SELECT 'Lake Nona' as hospital_name, * FROM `hca-data-sandbox.staffing_scheduling.demand_forecasting_raw_lakenona`
   )
   ;;
+
 #######################
 ### Original Dimensions
 #######################
@@ -193,6 +194,446 @@ view: hourly_census_2_hosp {
     sql: ${count_patients} ;;
   }
 }
+
+view: demand_forecasting_webform_cleaned {
+  sql_table_name: `hca-data-sandbox.staffing_scheduling.demand_forecasting_webform_cleaned`
+    ;;
+
+  dimension: date_pk {
+    primary_key: yes
+    type: string
+    sql: ${date_date} ;;
+  }
+
+  dimension_group: date {
+    type: time
+    timeframes: [
+      raw,
+      date,
+      week,
+      month,
+      quarter,
+      year
+    ]
+    convert_tz: no
+    datatype: date
+    sql: ${TABLE}.date ;;
+  }
+
+  dimension: points0 {
+    type: number
+    sql: ${TABLE}.points0 ;;
+  }
+
+  dimension: points1 {
+    type: number
+    sql: ${TABLE}.points1 ;;
+  }
+
+  dimension: points14 {
+    type: number
+    sql: ${TABLE}.points14 ;;
+  }
+
+  dimension: points21 {
+    type: number
+    sql: ${TABLE}.points21 ;;
+  }
+
+  dimension: points3 {
+    type: number
+    sql: ${TABLE}.points3 ;;
+  }
+
+  dimension: points7 {
+    type: number
+    sql: ${TABLE}.points7 ;;
+  }
+
+  # parameter: days_plus_minus {
+  #   type: unquoted
+  #   default_value: "points0"
+  #   allowed_value: {label: "0 - Same Day Only" value: "points0"}
+  #   allowed_value: {label: "1 - +/-1 Day" value: "points1"}
+  #   allowed_value: {label: "3 - +/-3 Day" value: "points3"}
+  #   allowed_value: {label: "7 - +/-7 Day" value: "points7"}
+  #   allowed_value: {label: "14 - +/-14 Day" value: "points14"}
+  #   allowed_value: {label: "21 - +/-21 Day" value: "points21"}
+  # }
+
+  # measure: count {
+  #   type: sum
+  #   sql: {% parameter days_plus_minus %} ;;
+  # }
+
+  measure: sumpoints0 {type: sum sql: ${points0} ;;}
+  measure: sumpoints1 {type: sum sql: ${points1} ;;}
+  measure: sumpoints3 {type: sum sql: ${points3} ;;}
+  measure: sumpoints7 {type: sum sql: ${points7} ;;}
+  measure: sumpoints14 {type: sum sql: ${points14} ;;}
+  measure: sumpoints21 {type: sum sql: ${points21} ;;}
+
+
+  measure: count {
+    type: count
+    drill_fields: []
+  }
+}
+
+view: patient_census_webform_combined_pre {
+  derived_table: {
+    explore_source: hourly_census_2_hosp {
+      column: census_date {}
+      column: max_value {}
+      column: sumpoints0 { field: demand_forecasting_webform_cleaned.sumpoints0 }
+      column: sumpoints1 { field: demand_forecasting_webform_cleaned.sumpoints1 }
+      column: sumpoints3 { field: demand_forecasting_webform_cleaned.sumpoints3 }
+      column: sumpoints7 { field: demand_forecasting_webform_cleaned.sumpoints7 }
+      column: sumpoints14 { field: demand_forecasting_webform_cleaned.sumpoints14 }
+      column: sumpoints21 { field: demand_forecasting_webform_cleaned.sumpoints21 }
+      filters: {
+        field: hourly_census_2_hosp.hospital_name
+        value: "Lake Nona"
+      }
+      filters: {
+        field: hourly_census_2_hosp.census_date
+        value: "after 2021/08/15"
+      }
+    }
+  }
+}
+
+view: patient_census_webform_combined {
+  derived_table: {
+    sql:
+      with max_value_cte as (
+      SELECT
+          max(max_value) as max_max_value
+        , max(sumpoints0) as max_sumpoints0
+        , max(sumpoints1) as max_sumpoints1
+        , max(sumpoints3) as max_sumpoints3
+        , max(sumpoints7) as max_sumpoints7
+        , max(sumpoints14) as max_sumpoints14
+        , max(sumpoints21) as max_sumpoints21
+      FROM ${patient_census_webform_combined_pre.SQL_TABLE_NAME}
+      )
+      SELECT *
+      FROM ${patient_census_webform_combined_pre.SQL_TABLE_NAME}
+      , max_value_cte
+    ;;
+  }
+
+  dimension: census_date {
+    type: date
+  }
+
+## Patient Census
+  dimension: max_value {
+    hidden: yes
+    type: number
+  }
+  dimension: max_max_value {
+    hidden: yes
+    type: number
+  }
+  measure: patient_census {
+    type: sum
+    sql: ${max_value} ;;
+  }
+  measure: patient_census_max {
+    type: sum
+    sql: ${max_max_value} ;;
+  }
+  measure: patient_census_percent_of_max {
+    type: number
+    sql: ${patient_census} / nullif(${patient_census_max},0) ;;
+    value_format_name: percent_1
+  }
+
+## Webform
+  dimension: sumpoints0 {
+    type: number
+  }
+  dimension: max_sumpoints0 {
+    type: number
+  }
+  measure: sum_sumpoints0 {
+    type: sum
+    sql: ${sumpoints0} ;;
+  }
+  measure: sum_max_sumpoints0 {
+    type: sum
+    sql: ${max_sumpoints0} ;;
+  }
+  measure: percent_of_max_0 {
+    type: number
+    sql: ${sum_sumpoints0} / nullif(${sum_max_sumpoints0},0) ;;
+    value_format_name: percent_1
+  }
+
+  dimension: sumpoints1 {
+    type: number
+  }
+  dimension: max_sumpoints1 {
+    type: number
+  }
+  measure: sum_sumpoints1 {
+    type: sum
+    sql: ${sumpoints1} ;;
+  }
+  measure: sum_max_sumpoints1 {
+    type: sum
+    sql: ${max_sumpoints1} ;;
+  }
+  measure: percent_of_max_1 {
+    type: number
+    sql: ${sum_sumpoints1} / nullif(${sum_max_sumpoints1},1) ;;
+    value_format_name: percent_1
+  }
+
+  dimension: sumpoints3 {
+    type: number
+  }
+  dimension: max_sumpoints3 {
+    type: number
+  }
+  measure: sum_sumpoints3 {
+    type: sum
+    sql: ${sumpoints3} ;;
+  }
+  measure: sum_max_sumpoints3 {
+    type: sum
+    sql: ${max_sumpoints3} ;;
+  }
+  measure: percent_of_max_3 {
+    type: number
+    sql: ${sum_sumpoints3} / nullif(${sum_max_sumpoints3},3) ;;
+    value_format_name: percent_1
+  }
+
+  dimension: sumpoints7 {
+    type: number
+  }
+  dimension: max_sumpoints7 {
+    type: number
+  }
+  measure: sum_sumpoints7 {
+    type: sum
+    sql: ${sumpoints7} ;;
+  }
+  measure: sum_max_sumpoints7 {
+    type: sum
+    sql: ${max_sumpoints7} ;;
+  }
+  measure: percent_of_max_7 {
+    type: number
+    sql: ${sum_sumpoints7} / nullif(${sum_max_sumpoints7},7) ;;
+    value_format_name: percent_1
+  }
+
+  dimension: sumpoints14 {
+    type: number
+  }
+  dimension: max_sumpoints14 {
+    type: number
+  }
+  measure: sum_sumpoints14 {
+    type: sum
+    sql: ${sumpoints14} ;;
+  }
+  measure: sum_max_sumpoints14 {
+    type: sum
+    sql: ${max_sumpoints14} ;;
+  }
+  measure: percent_of_max_14 {
+    type: number
+    sql: ${sum_sumpoints14} / nullif(${sum_max_sumpoints14},14) ;;
+    value_format_name: percent_1
+  }
+
+  dimension: sumpoints21 {
+    type: number
+  }
+  dimension: max_sumpoints21 {
+    type: number
+  }
+  measure: sum_sumpoints21 {
+    type: sum
+    sql: ${sumpoints21} ;;
+  }
+  measure: sum_max_sumpoints21 {
+    type: sum
+    sql: ${max_sumpoints21} ;;
+  }
+  measure: percent_of_max_21 {
+    type: number
+    sql: ${sum_sumpoints21} / nullif(${sum_max_sumpoints21},21) ;;
+    value_format_name: percent_1
+  }
+}
+
+view: census_webform_results {
+  derived_table: {
+    explore_source: patient_census_webform_combined {
+      column: census_date {}
+      column: patient_census_percent_of_max {}
+      column: percent_of_max_0 {}
+      column: percent_of_max_1 {}
+      column: percent_of_max_3 {}
+      column: percent_of_max_7 {}
+      column: percent_of_max_14 {}
+      column: percent_of_max_21 {}
+    }
+  }
+  dimension: census_date {
+    type: date
+  }
+  dimension: patient_census_percent_of_max {
+    type: number
+  }
+  dimension: percent_of_max_0 {
+    type: number
+  }
+  dimension: percent_of_max_1 {
+    type: number
+  }
+  dimension: percent_of_max_3 {
+    type: number
+  }
+  dimension: percent_of_max_7 {
+    type: number
+  }
+  dimension: percent_of_max_14 {
+    type: number
+  }
+  dimension: percent_of_max_21 {
+    type: number
+  }
+
+### RMSE
+  dimension: difference_abs_0 {
+    type: number
+    sql: ${patient_census_percent_of_max} - ${percent_of_max_0} ;;
+    value_format_name: decimal_2
+  }
+  dimension: difference_abs_squared_0 {
+    type: number
+    sql: pow(${difference_abs_0},2) ;;
+    value_format_name: decimal_2
+  }
+  measure: average_squared_0 {
+    type: average
+    sql: ${difference_abs_squared_0} ;;
+  }
+  measure: rmse_0 {
+    type: number
+    sql: pow(${average_squared_0},0.5) ;;
+    value_format_name: decimal_2
+  }
+
+  dimension: difference_abs_1 {
+    type: number
+    sql: ${patient_census_percent_of_max} - ${percent_of_max_1} ;;
+    value_format_name: decimal_2
+  }
+  dimension: difference_abs_squared_1 {
+    type: number
+    sql: pow(${difference_abs_1},2) ;;
+    value_format_name: decimal_2
+  }
+  measure: average_squared_1 {
+    type: average
+    sql: ${difference_abs_squared_1} ;;
+  }
+  measure: rmse_1 {
+    type: number
+    sql: pow(${average_squared_1},0.5) ;;
+    value_format_name: decimal_2
+  }
+
+  dimension: difference_abs_3 {
+    type: number
+    sql: ${patient_census_percent_of_max} - ${percent_of_max_3} ;;
+    value_format_name: decimal_2
+  }
+  dimension: difference_abs_squared_3 {
+    type: number
+    sql: pow(${difference_abs_3},2) ;;
+    value_format_name: decimal_2
+  }
+  measure: average_squared_3 {
+    type: average
+    sql: ${difference_abs_squared_3} ;;
+  }
+  measure: rmse_3 {
+    type: number
+    sql: pow(${average_squared_3},0.5) ;;
+    value_format_name: decimal_2
+  }
+
+  dimension: difference_abs_7 {
+    type: number
+    sql: ${patient_census_percent_of_max} - ${percent_of_max_7} ;;
+    value_format_name: decimal_2
+  }
+  dimension: difference_abs_squared_7 {
+    type: number
+    sql: pow(${difference_abs_7},2) ;;
+    value_format_name: decimal_2
+  }
+  measure: average_squared_7 {
+    type: average
+    sql: ${difference_abs_squared_7} ;;
+  }
+  measure: rmse_7 {
+    type: number
+    sql: pow(${average_squared_7},0.5) ;;
+    value_format_name: decimal_2
+  }
+
+  dimension: difference_abs_14 {
+    type: number
+    sql: ${patient_census_percent_of_max} - ${percent_of_max_14} ;;
+    value_format_name: decimal_2
+  }
+  dimension: difference_abs_squared_14 {
+    type: number
+    sql: pow(${difference_abs_14},2) ;;
+    value_format_name: decimal_2
+  }
+  measure: average_squared_14 {
+    type: average
+    sql: ${difference_abs_squared_14} ;;
+  }
+  measure: rmse_14 {
+    type: number
+    sql: pow(${average_squared_14},0.5) ;;
+    value_format_name: decimal_2
+  }
+
+  dimension: difference_abs_21 {
+    type: number
+    sql: ${patient_census_percent_of_max} - ${percent_of_max_21} ;;
+    value_format_name: decimal_2
+  }
+  dimension: difference_abs_squared_21 {
+    type: number
+    sql: pow(${difference_abs_21},2) ;;
+    value_format_name: decimal_2
+  }
+  measure: average_squared_21 {
+    type: average
+    sql: ${difference_abs_squared_21} ;;
+  }
+  measure: rmse_21 {
+    type: number
+    sql: pow(${average_squared_21},0.5) ;;
+    value_format_name: decimal_2
+  }
+
+}
+
+
 
 # view: hourly_census_2_hosp_pre {
 #   derived_table: {
